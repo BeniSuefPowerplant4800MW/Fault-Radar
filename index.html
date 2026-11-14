@@ -417,9 +417,9 @@ function match(a){let r=match0(a);const k=nz(a.item);if(r.all.length){const bA=b
   if(r.all.length){const ok=f=>S.fb[fbk(a,f)]==='ok'?1:0,ph=f=>(r.type==='Fuzzy'&&cls(k,nz(f.plant))===r.conf)?1:0;r.all.sort((x,y)=>(ok(y)-ok(x))||(ph(y)-ph(x))||(isOpen(y)-isOpen(x))||(r.j.get(y).sc-r.j.get(x).sc)||rank(x,y));r.fn=r.all[0];r.ok=!!ok(r.fn)}}
  return r}
 function isTest(a){return /\bNOW\b/i.test(String(a.state||''))||/\bTEST\b/i.test(String(a.desc||''))}
-function match0(a){if(isNormal(a))return{type:'Normal',conf:0,fn:null,all:[]};if(isTest(a))return{type:'Test',conf:0,fn:null,all:[]};const k=nz(a.item),bA=blkCode(a.item),B=S.bfs.filter(f=>bA&&blkCode(f.plant)===bA);if(S.by[k])return mk('Exact',100,S.by[k]);
- let c=B.filter(f=>f.txt.includes(k));if(c.length)return mk('Description',85,c);
- const sc=B.map(f=>[f,lvl(f,k)]);
+function match0(a){if(isNormal(a))return{type:'Normal',conf:0,fn:null,all:[]};if(isTest(a))return{type:'Test',conf:0,fn:null,all:[]};const k=nz(a.item),bA=blkCode(a.item),B=S.bfs.filter(f=>bA&&blkCode(f.plant)===bA);const mba=/^\d\dMBA5/.test(k);if(S.by[k]&&!mba)return mk('Exact',100,S.by[k]);
+ let c=mba?[]:B.filter(f=>f.txt.includes(k));if(c.length)return mk('Description',85,c);
+ const sc=B.map(f=>[f,lvl(f,k)]);if(mba){c=sc.filter(x=>x[1]>=70).map(x=>x[0]);if(c.length)return mk('Fuzzy',70,c)}
  for(const L of [90,70,50]){c=sc.filter(x=>x[1]===L).map(x=>x[0]);if(c.length)return mk('Fuzzy',L,c)}
  return{type:'NotFound',conf:0,fn:null,all:[]}}
 function fill(a){const m=a.m,f=m.fn;if(m.type==='Test'){Object.assign(a,{status:'Test overdue',comments:'Overdue test (state NOW / description TEST) — must be performed if permitted by the equipment procedures.',esc:'No',priority:CPRI[a.cls]||'P3',wo:'',prevWo:'',notes:'Operation to perform the test per the equipment procedure.',disc:'Operation',dsrc:'Test rule → Operation'});return}if(m.type==='Normal'){Object.assign(a,{status:'Normal in operation',comments:'Normal status in operation — no FN required.',esc:'No',priority:'—',wo:'',prevWo:'',notes:'',disc:'Operation',dsrc:'Normal-status list'});return}a.priority=CPRI[a.cls]||'P3';if(!f){const dd=asdDept(a);Object.assign(a,{disc:dd[0],dsrc:dd[1],status:'Open',comments:'No FN found in BFS – verify field condition and raise new FN.',esc:a.cls==='A'?'Yes':'No'});return}
